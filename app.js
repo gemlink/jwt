@@ -7,6 +7,7 @@ const cors = require("cors")
 
 const User = require("./model/user");
 const auth = require("./middleware/auth");
+const authRefresh = require("./middleware/authRefresh");
 
 const app = express();
 
@@ -44,11 +45,16 @@ app.post("/register", async (req, res) => {
 
     // Create token
     const token = jwt.sign({ user_id: user._id, email }, process.env.TOKEN_KEY, {
-      expiresIn: "2h",
+      expiresIn: "1h",
     });
+
+    const refreshToken = jwt.sign({ user_id: user._id, email }, process.env.REFRESH_TOKEN_KEY, {
+      expiresIn: "30d",
+    });
+    
     // save user token
     user.token = token;
-
+    user.refresh_token = refreshToken;
     // return new user
     res.status(201).json(user);
   } catch (err) {
@@ -71,11 +77,16 @@ app.post("/login", async (req, res) => {
     if (user && (await bcrypt.compare(password, user.password))) {
       // Create token
       const token = jwt.sign({ user_id: user._id, email }, process.env.TOKEN_KEY, {
-        expiresIn: "2h",
+        expiresIn: "1h",
+      });
+
+      const refreshToken = jwt.sign({ user_id: user._id, email }, process.env.REFRESH_TOKEN_KEY, {
+        expiresIn: "30d",
       });
 
       // save user token
       user.token = token;
+      user.refresh_token = refreshToken;
 
       // user
       res.status(200).json(user);
@@ -87,8 +98,24 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/welcome", auth, (req, res) => {
+app.get("/check", auth, (req, res) => {
   res.status(200).send("Welcome 🙌 ");
+});
+
+app.get("/issue", authRefresh, async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    res.status(400).send("All input is required");
+  }
+  // Validate if user exist in our database
+  const user = await User.findOne({ email });
+
+  const token = jwt.sign({ user_id: user._id, email }, process.env.TOKEN_KEY, {
+    expiresIn: "1h",
+  });
+  user.token = token;
+
+  res.status(200).json(user);
 });
 
 // This should be the last route else any after it won't work

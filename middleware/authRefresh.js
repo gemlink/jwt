@@ -9,13 +9,8 @@ const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(403).send("A token is required for authentication");
   }
-  const { email } = req.body;
-  if (!email) {
-    res.status(400).send("Email is required");
-  }
-
   try {
-    const decoded = jwt.verify(token, config.TOKEN_KEY);
+    const decoded = jwt.verify(token, config.REFRESH_TOKEN_KEY);
     req.user = decoded;
 
     if (email != req.user.email) {
