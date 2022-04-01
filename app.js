@@ -13,7 +13,6 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(cors());
 
-const KEY = "sdfsdfsdfsf";
 app.post("/register", async (req, res) => {
   try {
     // Get user input
@@ -44,7 +43,7 @@ app.post("/register", async (req, res) => {
     });
 
     // Create token
-    const token = jwt.sign({ user_id: user._id, email }, KEY, {
+    const token = jwt.sign({ user_id: user._id, email }, process.env.TOKEN_KEY, {
       expiresIn: "2h",
     });
     // save user token
@@ -71,7 +70,7 @@ app.post("/login", async (req, res) => {
 
     if (user && (await bcrypt.compare(password, user.password))) {
       // Create token
-      const token = jwt.sign({ user_id: user._id, email }, KEY, {
+      const token = jwt.sign({ user_id: user._id, email }, process.env.TOKEN_KEY, {
         expiresIn: "2h",
       });
 
