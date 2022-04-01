@@ -3,6 +3,7 @@ require("./config/database").connect();
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const cors = require("cors")
 
 const User = require("./model/user");
 const auth = require("./middleware/auth");
@@ -10,6 +11,7 @@ const auth = require("./middleware/auth");
 const app = express();
 
 app.use(express.json({ limit: "50mb" }));
+app.use(cors());
 
 const KEY = "sdfsdfsdfsf";
 app.post("/register", async (req, res) => {
