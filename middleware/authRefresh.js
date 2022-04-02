@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
     const decoded = jwt.verify(token, config.REFRESH_TOKEN_KEY);
     req.user = decoded;
 
-    if (email != req.user.email) {
+    if (req.body.email != req.user.email) {
       res.status(401).send("Email is incorrect");
     }
 
