@@ -102,7 +102,7 @@ app.get("/check", auth, (req, res) => {
   res.status(200).send("Welcome 🙌 ");
 });
 
-app.get("/issue", authRefresh, async (req, res) => {
+app.post("/issue", authRefresh, async (req, res) => {
   const { email } = req.body;
   if (!email) {
     res.status(400).send("All input is required");
